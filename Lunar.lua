@@ -16,7 +16,7 @@ end
 
 -- Maybe add support for another method?
 local canPwsh
-local er, code = os.execute("powershell write-host \b\b")
+local er, code = os.execute("powershell write-host -NoNewline ''")
 if er == 0 or code == 0 then
     canPwsh = true
 end
@@ -100,7 +100,7 @@ function RunCommand(args)
             filename = filename:gsub("%.lua$", "")
         end
         
-        -- print() -- This isnt needed since the pwsh check prints a line
+        print()
         local setting = { Indentation = "    ", Os = osname, CanPwsh = canPwsh }
         if Settings.Directory then
             setting.Indentation = "        "
