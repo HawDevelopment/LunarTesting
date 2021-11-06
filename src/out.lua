@@ -11,7 +11,9 @@ return function(result, settings)
     if settings.CanPwsh then
         File = "\n"
         Print = function(toprint, color)
-            local toadd = "Write-Host " .. (color and "-ForegroundColor " .. color or "") .. " \"" .. (settings.Indentation:gsub("    ", "`t") .. toprint) .. "\""
+            local toadd = "Write-Host " .. (color and "-ForegroundColor " .. color or "") .. " \"" ..
+                (settings.Indentation:gsub("    ", "`t") .. toprint:gsub("\n", "`n")) .. "\""
+            
             File = File .. toadd .. "\n"
         end
     else
