@@ -3,6 +3,11 @@
     HawDevelopment
     25/10/2021
 --]]
+local path = arg[0]
+if path:sub(-1, -1) == "\\" or path:sub(-1, -1) == "/" then
+    path = path:sub(1, -2)
+end
+package.path = path:sub(1, -10) .. "?.lua" .. ";" .. package.path
 
 -- TODO: Add suport for mac
 local format, osname = package.cpath:match("%p[\\|/]?%p(%a+)"), ""
@@ -21,8 +26,7 @@ if er == 0 or code == 0 then
     canPwsh = true
 end
 
-local Lunar = require("src.service")
-
+local Lunar = require("src.lunar")
 local unpack = unpack or table.unpack
 
 local RUN_TEST_DEFUALT = true
@@ -45,8 +49,8 @@ local function ValueInTable(tab, value)
     return false
 end
 
-local function IsDir(path)
-    local ercode, code = os.execute("cd " .. path)
+local function IsDir(tofind)
+    local ercode, code = os.execute("cd " .. tofind)
     if ercode == 0 or code == 0 then
         return true
     else
@@ -103,14 +107,25 @@ function RunCommand(args)
         print()
         local setting = { Indentation = "    ", Os = osname, CanPwsh = canPwsh }
         if Settings.Directory then
-            setting.Indentation = "        "
+            setting.Indentation = ""
+            
+            function RunOut(name, result)
+                if not result.Failed then
+                    -- Its a directory
+                    print(setting.Indentation .. "Running dir: " .. name)
+                    setting.Indentation = setting.Indentation .. "    "
+                    for key, value in pairs(result) do
+                        RunOut(key, value)
+                    end
+                    setting.Indentation = setting.Indentation:sub(1, -5)
+                else
+                    print(setting.Indentation .. "Running file: " .. name)
+                    Lunar.out(result, setting)
+                end
+            end
             
             local results = Lunar.run(Settings, filename, osname)
-            print("Running dir: " .. filename)
-            for name, result in pairs(results) do
-                print("    Running file: " .. name)
-                Lunar.out(result, setting)
-            end
+            RunOut(filename, results)
         else
             print("Running file: " .. filename)
             local result = Lunar.run(Settings, filename, osname)

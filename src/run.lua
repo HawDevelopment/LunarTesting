@@ -8,11 +8,14 @@ function Run(settings, file, osname)
     if settings.Directory and not file:match("%.lua$") then
         local indir = {}
         file = file:gsub("/", "\\")
+        if file:sub(-1, -1) ~= "\\" then
+            file = file .. "\\"
+        end
         
         if osname == "windows" then
             local pfile = io.popen("dir " .. file .. " /b")
             for dir in pfile:lines() do
-                table.insert(indir, dir)
+                table.insert(indir, file .. dir)
             end
             pfile:close()
         elseif osname == "linux" then
@@ -26,9 +29,11 @@ function Run(settings, file, osname)
         -- Run directory
         local results = {}
         for _, value in pairs(indir) do
-            table.insert(results, Run(settings, value))
+            results[value] = Run(settings, value:gsub("^%.?\\?", ""), osname)
         end
         return results
+    elseif file:match("%.lua$") then
+        file = file:sub(1, -5)
     end
     
     local tests = require(file)

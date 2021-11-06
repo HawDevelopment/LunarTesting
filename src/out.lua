@@ -27,8 +27,8 @@ return function(result, settings)
     for key, _ in pairs(result.Passed) do
         Print("Pass: " .. key, "Green")
     end
-    for key, value in pairs(result.Skipped) do
-        Print("Skip: " .. key .. ": " .. value, "Yellow")
+    for key, _ in pairs(result.Skipped) do
+        Print("Skip: " .. key, "Yellow")
     end
     
     if settings.CanPwsh then
